@@ -8,11 +8,7 @@ const fetcher = (url: string) => fetch(url, {credentials: 'include',}).then(res 
 });
 
 export function useAuth() {
-    const { data: user, error, isLoading } = useSWR('http://localhost:8080/api/user/me', fetcher, {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        shouldRetryOnError: false,
-    });
+    const { data: user, error, isLoading } = useSWR('http://localhost:8080/api/user/me', fetcher);
     const isAuthenticated = !!user && !error;
 
     return {
