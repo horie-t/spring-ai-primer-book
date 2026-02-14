@@ -18,6 +18,7 @@ const SpringAIModelAdapter: ChatModelAdapter = {
             },
             body: JSON.stringify(lastMessage),
             signal: abortSignal,
+            credentials: 'include',
         });
         const data = await result.json();
 
