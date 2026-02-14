@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useState } from 'react';
+import { mutate } from 'swr';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,6 +68,15 @@ export function LoginForm() {
 
             if (response.ok) {
                 console.log('認証に成功しました。');
+                // ログイン後にユーザー情報を取得してSWRのキャッシュを更新
+                const userResponse = await fetch('http://localhost:8080/api/user/me', {
+                    credentials: 'include',
+                });
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    // SWRのキャッシュに新しいユーザーデータをセット
+                    await mutate('http://localhost:8080/api/user/me', userData, { revalidate: false });
+                }
                 router.push('/');
             } else if (response.status === 401) {
                 setError('ユーザー名またはパスワードが正しくありません。');
