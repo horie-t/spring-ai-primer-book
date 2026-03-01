@@ -7,7 +7,15 @@ spring:
       chat:
         options:
           model: gpt-4.1
-
+    mcp:
+      client:
+        stdio:
+          connections:
+            brave-search-client:
+              command: npx
+              args: ["-y", "@modelcontextprotocol/server-brave-search"]
+              env:
+                BRAVE_API_KEY: "${BRAVE_API_KEY}"
 logging:
   level:
     org:

@@ -6,6 +6,8 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,9 +22,12 @@ public class OpenAIChatService {
     private final ChatClient chatClient;
     private final ChatMemory chatMemory;
 
-    public OpenAIChatService(ChatClient.Builder builder, ChatMemory chatMemory) {
+    private final SyncMcpToolCallbackProvider syncMcpToolCallbackProvider;
+
+    public OpenAIChatService(ChatClient.Builder builder, ChatMemory chatMemory, SyncMcpToolCallbackProvider syncMcpToolCallbackProvider) {
         this.chatClient = builder.build();
         this.chatMemory = chatMemory;
+        this.syncMcpToolCallbackProvider = syncMcpToolCallbackProvider;
     }
 
     public String withUserMessage(String userMessage) {
@@ -36,6 +41,7 @@ public class OpenAIChatService {
                 .user(userMessage)
                 .tools(new PetStoreTools())
                 .toolContext(Map.of("JSESSIONID", getCurrentSessionId()))
+                .toolCallbacks(syncMcpToolCallbackProvider.getToolCallbacks())
                 .call()
                 .content();
     }
