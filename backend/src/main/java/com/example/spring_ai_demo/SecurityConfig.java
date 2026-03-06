@@ -1,6 +1,7 @@
 package com.example.spring_ai_demo;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Value("${spring.security.rag_user.name}")
+    private String ragUserName;
 
     /**
      * Spring Securityの認証・認可ルールを設定
@@ -92,6 +95,14 @@ public class SecurityConfig {
                 .roles("USER")
                 .build();
 
-        return new InMemoryUserDetailsManager(user123, user456);
+        // RAGテストユーザ
+        var rag_user = User.builder()
+                .username(ragUserName)
+                // 実際のパスワードをエンコードして設定
+                .password(passwordEncoder.encode("pass-rag-123"))
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(user123, user456, rag_user);
     }
 }

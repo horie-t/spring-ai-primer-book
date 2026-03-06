@@ -1,5 +1,6 @@
 package com.example.spring_ai_demo.adapter.out.saas;
 
+import com.example.spring_ai_demo.adapter.out.persistance.RagSearchTool;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.ai.chat.client.ChatClient;
@@ -8,6 +9,7 @@ import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,12 +23,15 @@ import java.util.Map;
 public class OpenAIChatService {
     private final ChatClient chatClient;
     private final ChatMemory chatMemory;
+    private final VectorStore vectorStore;
 
     private final SyncMcpToolCallbackProvider syncMcpToolCallbackProvider;
 
-    public OpenAIChatService(ChatClient.Builder builder, ChatMemory chatMemory, SyncMcpToolCallbackProvider syncMcpToolCallbackProvider) {
+    public OpenAIChatService(ChatClient.Builder builder, ChatMemory chatMemory, VectorStore vectorStore,
+                             SyncMcpToolCallbackProvider syncMcpToolCallbackProvider) {
         this.chatClient = builder.build();
         this.chatMemory = chatMemory;
+        this.vectorStore = vectorStore;
         this.syncMcpToolCallbackProvider = syncMcpToolCallbackProvider;
     }
 
@@ -39,8 +44,8 @@ public class OpenAIChatService {
                     advisorSpec.param(ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId());
                 })
                 .user(userMessage)
-                .tools(new PetStoreTools())
-                .toolContext(Map.of("JSESSIONID", getCurrentSessionId()))
+                .tools(new PetStoreTools(), new RagSearchTool(vectorStore))
+                .toolContext(Map.of("JSESSIONID", getCurrentSessionId(), "username", getCurrentUsername()))
                 .toolCallbacks(syncMcpToolCallbackProvider.getToolCallbacks())
                 .call()
                 .content();
