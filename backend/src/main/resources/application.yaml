@@ -27,6 +27,10 @@ spring:
         distance-type: COSINE_DISTANCE
         dimensions: 1536
         initialize-schema: true
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/postgres"
+    username: postgres
+    password: password
 
 logging:
   level:
