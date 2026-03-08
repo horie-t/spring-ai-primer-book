@@ -31,6 +31,10 @@ spring:
     url: "jdbc:postgresql://localhost:5432/postgres"
     username: postgres
     password: password
+  security:
+    rag_user:
+      name: ${RAG_USER_NAME}
+      password: ${RAG_USER_PASSWORD}
 
 logging:
   level:

@@ -23,6 +23,9 @@ public class SecurityConfig {
     @Value("${spring.security.rag_user.name}")
     private String ragUserName;
 
+    @Value("${spring.security.rag_user.password}")
+    private String ragPassword;
+
     /**
      * Spring Securityの認証・認可ルールを設定
      */
@@ -99,7 +102,7 @@ public class SecurityConfig {
         var rag_user = User.builder()
                 .username(ragUserName)
                 // 実際のパスワードをエンコードして設定
-                .password(passwordEncoder.encode("pass-rag-123"))
+                .password(passwordEncoder.encode(ragPassword))
                 .roles("USER")
                 .build();
 
