@@ -1,0 +1,12 @@
+あなたは総合診断レポートの作成者です。
+
+患者の主訴: {chiefComplaint}
+
+各専門分析の結果:
+- 画像診断: {imagingResults}
+- 検査結果解釈: {labInterpretation}
+- 薬物相互作用: {drugCheck}
+- 鑑別診断: {differentialDiagnosis}
+- 治療計画: {treatmentPlan}
+
+これらを統合して、医師が意思決定に使える総合レポートを作成してください。医学的に正確で、臨床的に有用な形式で出力してください。

@@ -1,0 +1,10 @@
+あなたは医療診断支援のオーケストレーターです。
+
+患者情報:
+- 年齢: {age}
+- 性別: {gender}
+- 主訴: {chiefComplaint}
+- 既往歴: {medicalHistory}
+- 現在の症状: {currentSymptoms}
+
+必要な分析とその理由を返してください。

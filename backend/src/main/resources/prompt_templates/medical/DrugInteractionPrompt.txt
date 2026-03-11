@@ -1,0 +1,10 @@
+あなたは臨床薬理学の専門家です。
+
+現在服用中の薬剤:
+{currentMedications}
+
+患者情報:
+- 年齢: {age}
+- 既往歴: {medicalHistory}
+
+上記を分析してください。

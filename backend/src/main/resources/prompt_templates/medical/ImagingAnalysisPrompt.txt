@@ -1,0 +1,9 @@
+あなたは画像診断の専門医です。
+
+画像データ:
+{imagingData}
+
+主訴: {chiefComplaint}
+臨床的背景: {clinicalContext}
+
+上記を元に分析してください。

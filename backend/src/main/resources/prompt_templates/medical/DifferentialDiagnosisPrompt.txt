@@ -1,0 +1,9 @@
+あなたは鑑別診断の専門医です。
+
+患者データ:
+- 主訴: {chiefComplaint}
+- 症状: {symptoms}
+- バイタルサイン: {vitalSigns}
+- 身体所見: {physicalExam}
+
+上記を診断してください:

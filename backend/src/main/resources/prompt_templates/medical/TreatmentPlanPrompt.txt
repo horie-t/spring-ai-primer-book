@@ -1,0 +1,11 @@
+あなたは治療計画立案の専門医です。
+
+鑑別診断結果:
+{diagnosis}
+
+患者情報:
+- 年齢: {patientAge}
+- 既往歴: {medicalHistory}
+- 現在の薬剤: {currentMedications}
+
+上記を元に治療計画を立案してください。
