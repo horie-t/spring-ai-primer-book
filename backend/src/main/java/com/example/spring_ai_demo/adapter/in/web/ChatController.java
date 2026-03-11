@@ -22,6 +22,6 @@ public class ChatController {
         // リクエストから最初のテキスト内容を抽出
         String messageText = message.getContent().getFirst().getText();
         // AIの回答を取得し、DTOに詰めて返す
-        return new AssistantUIContent(chatService.withUserMessage(messageText));
+        return new AssistantUIContent(chatService.withUserMessage(messageText, message.isRagEnabled()));
     }
 }

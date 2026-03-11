@@ -23,28 +23,37 @@ import java.util.Map;
 public class OpenAIChatService {
     private final ChatClient chatClient;
     private final ChatMemory chatMemory;
+    private final VectorStore vectorStore;
 
     private final SyncMcpToolCallbackProvider syncMcpToolCallbackProvider;
 
     public OpenAIChatService(ChatClient.Builder builder, ChatMemory chatMemory, VectorStore vectorStore,
                              SyncMcpToolCallbackProvider syncMcpToolCallbackProvider) {
-        this.chatClient = builder
-                .defaultAdvisors(QuestionAnswerAdvisor.builder(vectorStore)
-                        .searchRequest(SearchRequest.builder().build())
-                        .build())
-                .build();
+        this.chatClient = builder.build();
         this.chatMemory = chatMemory;
+        this.vectorStore = vectorStore;
         this.syncMcpToolCallbackProvider = syncMcpToolCallbackProvider;
     }
 
-    public String withUserMessage(String userMessage) {
+    public String withUserMessage(String userMessage, boolean ragEnabled) {
         return chatClient.prompt()
                 .advisors(advisorSpec -> {
-                    advisorSpec.advisors(
-                        new SimpleLoggerAdvisor(),
-                        MessageChatMemoryAdvisor.builder(chatMemory).build());
-                    advisorSpec.param(ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId());
-                    advisorSpec.param(QuestionAnswerAdvisor.FILTER_EXPRESSION, "owner == '" + getCurrentUsername() + "'");
+                    if (ragEnabled) {
+                        advisorSpec.advisors(
+                                new SimpleLoggerAdvisor(),
+                                MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                                QuestionAnswerAdvisor.builder(vectorStore)
+                                        .searchRequest(SearchRequest.builder().build())
+                                        .build());
+                        advisorSpec.params(Map.of(
+                                ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId(),
+                                QuestionAnswerAdvisor.FILTER_EXPRESSION, "owner == '" + getCurrentUsername() + "'"));
+                    } else {
+                        advisorSpec.advisors(
+                                new SimpleLoggerAdvisor(),
+                                MessageChatMemoryAdvisor.builder(chatMemory).build());
+                        advisorSpec.param(ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId());
+                    }
                 })
                 .user(userMessage)
                 .tools(new PetStoreTools())
