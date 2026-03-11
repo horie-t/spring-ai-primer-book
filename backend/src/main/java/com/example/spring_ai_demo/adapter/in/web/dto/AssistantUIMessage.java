@@ -8,4 +8,5 @@ import java.util.List;
 public class AssistantUIMessage {
     private String role;
     private List<AssistantUIContent> content;
+    private boolean ragEnabled;
 }

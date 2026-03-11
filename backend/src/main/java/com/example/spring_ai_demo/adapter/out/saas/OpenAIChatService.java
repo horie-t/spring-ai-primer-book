@@ -1,14 +1,14 @@
 package com.example.spring_ai_demo.adapter.out.saas;
 
-import com.example.spring_ai_demo.adapter.out.persistance.RagSearchTool;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.mcp.SyncMcpToolCallbackProvider;
-import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,16 +35,28 @@ public class OpenAIChatService {
         this.syncMcpToolCallbackProvider = syncMcpToolCallbackProvider;
     }
 
-    public String withUserMessage(String userMessage) {
+    public String withUserMessage(String userMessage, boolean ragEnabled) {
         return chatClient.prompt()
                 .advisors(advisorSpec -> {
-                    advisorSpec.advisors(
-                        new SimpleLoggerAdvisor(),
-                        MessageChatMemoryAdvisor.builder(chatMemory).build());
-                    advisorSpec.param(ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId());
+                    if (ragEnabled) {
+                        advisorSpec.advisors(
+                                new SimpleLoggerAdvisor(),
+                                MessageChatMemoryAdvisor.builder(chatMemory).build(),
+                                QuestionAnswerAdvisor.builder(vectorStore)
+                                        .searchRequest(SearchRequest.builder().build())
+                                        .build());
+                        advisorSpec.params(Map.of(
+                                ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId(),
+                                QuestionAnswerAdvisor.FILTER_EXPRESSION, "owner == '" + getCurrentUsername() + "'"));
+                    } else {
+                        advisorSpec.advisors(
+                                new SimpleLoggerAdvisor(),
+                                MessageChatMemoryAdvisor.builder(chatMemory).build());
+                        advisorSpec.param(ChatMemory.CONVERSATION_ID, getCurrentUsername() + "-" + getCurrentSessionId());
+                    }
                 })
                 .user(userMessage)
-                .tools(new PetStoreTools(), new RagSearchTool(vectorStore))
+                .tools(new PetStoreTools())
                 .toolContext(Map.of("JSESSIONID", getCurrentSessionId(), "username", getCurrentUsername()))
                 .toolCallbacks(syncMcpToolCallbackProvider.getToolCallbacks())
                 .call()
